@@ -15,7 +15,7 @@ pipeline {
       TEST_RESULT_LOCATION    = "**/*-nosetests.xml"
       SSH_CONFIG_BASE         = "/var/lib/jenkins/.ssh/config.d/${env.BUILD_TAG}"
       DOCKER_IMAGE_NAME       = "demo-webapp"
-      DOCKER_IMAGE_VERSION    = "latest"
+      DOCKER_IMAGE_VERSION    = "${BUILD_NUMBER}"
       PYTHONPATH              ="${WORKSPACE}:${PYTHONPATH}"
       SQLITE_DB_LOCATION      ="${WORKSPACE}/test-sqlite"
    }
@@ -59,6 +59,7 @@ pipeline {
          steps {
             script{
                docker.build('${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}')
+               docker.build('${DOCKER_IMAGE_NAME}:latest')
             }
          }
       }
@@ -68,6 +69,7 @@ pipeline {
             script {
                docker.withRegistry('https://956975823273.dkr.ecr.us-east-2.amazonaws.com', 'ecr:us-east-2:demo-ecr-credentials') {
                   docker.image('${DOCKER_IMAGE_NAME}').push('${DOCKER_IMAGE_VERSION}')
+                  docker.image('${DOCKER_IMAGE_NAME}').push('latest')
                }
             }
          }
@@ -82,7 +84,7 @@ pipeline {
             # Run Deployment to Test
             ktmpl ./deploy/sos-deployment-tmpl.yaml \
                --parameter NAMESPACE test \
-               --parameter VERSION latest \
+               --parameter VERSION ${DOCKER_IMAGE_VERSION} \
                | kubectl apply -f -
             '''
          }
@@ -108,7 +110,7 @@ pipeline {
             # Run Deployment to Prod
             ktmpl ./deploy/sos-deployment-tmpl.yaml \
                --parameter NAMESPACE production \
-               --parameter VERSION latest \
+               --parameter VERSION ${DOCKER_IMAGE_VERSION} \
                | kubectl apply -f -
             '''
          }
