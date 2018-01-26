@@ -1,6 +1,6 @@
-Order Validation Server (OVS)
+Simple Order Server (SOS)
 ===
 
-Think about it, this is just a simple Order Validation Server.
+Think about it, this is just a Simple Order Server (SOS).
 
 

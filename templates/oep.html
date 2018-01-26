@@ -1,28 +1,64 @@
 <!doctype html>
 <title>Order Entry</title>
 <!-- <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}"> -->
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
 <div class=page>
+  <nav class="navbar navbar-default">
+      <div class="navbar-header">
+          <span class="navbar-brand">{{ server_name }}</span>
+      </div>
+  </nav>
+  <div class="container">
+  <div class="col-xs-12 col-sm-6 col-md-8">
+  <h3>Enter order details</h3>
   <form action="{{ url_for('post_order') }}" method=post class=add-entry>
-      <dl>
-        <dt>Full Name:
-        <dd><input type=text size=50 name=name>
-        <dt>Address:
-        <dd><input type=text size=100 name=address>
-        <dt>City:
-        <dd><input type=text size=50 name=city>
-        <dt>State:
-        <dd><input type=text size=2 maxlength=2 name=state>
-        <dt>Zipcode:
-        <dd><input type=text size=10 name=zipcode>
-        <dt>Due Date:
-        <dd><input type=date name=dueDate>
-        <dt>Product:
-        <dd><select name=productType>
+      <div class=form-group>
+        <label for=nameId>Full Name</label>
+        <input id="nameId" type=text size=50 name=name class=form-control placeholder="Please enter the full name">
+      </div>
+
+      <div class=form-group>
+        <label for=addressId>Street Address</label>
+        <input id="addressId" type=text size=100 name=address class=form-control placeholder="Please enter the street address">
+      </div>
+
+      <div class=form-group>
+        <label for=cityId>City</label>
+        <input id="cityId" type=text size=50 name=city class=form-control placeholder="Please enter the city">
+      </div>
+
+      <div class=form-group>
+        <label for=stateId>State (i.e, NY)</label>
+        <input id="stateId" type=text size=5 maxlength=2 name=state class=form-control placeholder="Please enter the state">
+      </div>
+
+      <div class=form-group>
+        <label for=zipId>ZIP Code</label>
+        <input id="zipId" type=text size=10 maxlength=10 name=zipcode class=form-control placeholder="Please enter the ZIP code">
+      </div>
+
+      <div class=form-group>
+        <label for=dateId>Due Date</label>
+        <input id="dateId" type=date name=dueDate class=form-control placeholder="Please enter the due date (mm/dd/yyyy)">
+      </div>
+
+      <div class=form-group>
+        <label for=productId>Product</label>
+        <select id="productId" name=productType class=form-control>
             {% for entry in entries %}
              <option value={{entry}}>{{entry}}</option>
             {% endfor %}
-            </select>
-        <dd><input type=submit value=Submit>
-      </dl>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-default">Submit</button>
     </form>
+    </div>
+    </div>
 </div>
