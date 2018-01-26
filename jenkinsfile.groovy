@@ -106,7 +106,7 @@ pipeline {
             set -e
 
             # Run Deployment to Prod
-            tmpl ./deploy/sos-deployment-tmpl.yaml \
+            ktmpl ./deploy/sos-deployment-tmpl.yaml \
                --parameter NAMESPACE production \
                --parameter VERSION latest \
                | kubectl apply -f -
