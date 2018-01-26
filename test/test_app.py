@@ -1,7 +1,9 @@
 import unittest
-import json, re
+import json
+import re
+import os
 from datetime import datetime, timedelta
-from app import server
+from app import server, initialize_database, db_file
 from flask import jsonify
 
 class APITest(unittest.TestCase):
@@ -17,6 +19,13 @@ class APITest(unittest.TestCase):
     template_order['productType'] = 'Movie'
     template_order['dueDate'] = dueDate.strftime("%m/%d/%Y")
 
+    @classmethod
+    def setUpClass(cls):
+        initialize_database(db_file=db_file)
+
+    @classmethod
+    def tearDownClass(cls):
+        os.remove(db_file)
 
     def setUp(self):
         self.applications = server.test_client()
@@ -26,19 +35,19 @@ class APITest(unittest.TestCase):
         assert 200 == result.status_code
         
     def test_valid_orders(self):
-        # Testing productType: Movie
+        # Testing productType: Piano
         new_order = self.template_order.copy()
-        new_order['productType'] = 'Movie'
+        new_order['productType'] = 'Piano'
         order = json.dumps(new_order)
-        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        result = self.applications.post('/sos/orders', content_type='application/json', data=order)
         json_result = json.loads(result.data)
         assert 200 == result.status_code
 
-        # Testing productType: Song
+        # Testing productType: Saxophone
         new_order = self.template_order.copy()
-        new_order['productType'] = 'Song'
+        new_order['productType'] = 'Saxophone'
         order = json.dumps(new_order)
-        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        result = self.applications.post('/sos/orders', content_type='application/json', data=order)
         json_result = json.loads(result.data)
         # Check Results
         assert 200 == result.status_code
@@ -48,12 +57,12 @@ class APITest(unittest.TestCase):
         # Create order
         new_order = self.template_order.copy()
         order = json.dumps(new_order)
-        result_post = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        result_post = self.applications.post('/sos/orders', content_type='application/json', data=order)
         json_result_post = json.loads(result_post.data)
         # Check Results from POST
         assert 200 == result_post.status_code
         # Get the order again via GET
-        result_get = self.applications.get('/ovs/orders/' + json_result_post['id'])
+        result_get = self.applications.get('/sos/orders/' + json_result_post['id'])
         json_result_get = json.loads(result_get.data)
         # Check Results from GET
         assert 200 == result_get.status_code
@@ -65,7 +74,7 @@ class APITest(unittest.TestCase):
     def test_empty_order(self):
         # Testing empty order
         new_order = '{}'
-        result = self.applications.post('/ovs/orders', content_type='application/json', data=new_order)
+        result = self.applications.post('/sos/orders', content_type='application/json', data=new_order)
         json_result = json.loads(result.data)
         # Check Results
         assert 400 == result.status_code
@@ -77,7 +86,7 @@ class APITest(unittest.TestCase):
         new_order = self.template_order.copy()
         new_order['dueDate'] = datetime.now().strftime("%m/%d/%Y")
         order = json.dumps(new_order)
-        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        result = self.applications.post('/sos/orders', content_type='application/json', data=order)
         json_result = json.loads(result.data)
         assert 400 == result.status_code and 'error' in json_result and 'due date is too early' == json_result['error']
 
@@ -89,7 +98,7 @@ class APITest(unittest.TestCase):
         new_order = self.template_order.copy()
         new_order['state'] = 'FL'
         order = json.dumps(new_order)
-        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        result = self.applications.post('/sos/orders', content_type='application/json', data=order)
         json_result = json.loads(result.data)
         assert 400 == result.status_code and 'error' in json_result and 'state not in service' == json_result['error']
 
@@ -97,7 +106,7 @@ class APITest(unittest.TestCase):
         new_order = self.template_order.copy()
         new_order['state'] = 'CA'
         order = json.dumps(new_order)
-        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        result = self.applications.post('/sos/orders', content_type='application/json', data=order)
         json_result = json.loads(result.data)
         assert 400 == result.status_code and 'error' in json_result and 'state not in service' == json_result['error']
 
@@ -105,7 +114,7 @@ class APITest(unittest.TestCase):
         new_order = self.template_order.copy()
         new_order['state'] = 'TX'
         order = json.dumps(new_order)
-        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        result = self.applications.post('/sos/orders', content_type='application/json', data=order)
         json_result = json.loads(result.data)
         assert 400 == result.status_code and 'error' in json_result and 'state not in service' == json_result['error']
 
@@ -115,7 +124,7 @@ class APITest(unittest.TestCase):
         new_order = self.template_order.copy()
         new_order['zipcode'] = '0000'
         order = json.dumps(new_order)
-        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        result = self.applications.post('/sos/orders', content_type='application/json', data=order)
         json_result = json.loads(result.data)
         assert 400 == result.status_code and 'error' in json_result and 'invalid zipcode' == json_result['error']
 
@@ -123,7 +132,7 @@ class APITest(unittest.TestCase):
         new_order = self.template_order.copy()
         new_order['zipcode'] = '00600'
         order = json.dumps(new_order)
-        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        result = self.applications.post('/sos/orders', content_type='application/json', data=order)
         json_result = json.loads(result.data)
         assert 400 == result.status_code and 'error' in json_result and 'invalid zipcode' == json_result['error']
 
@@ -131,7 +140,7 @@ class APITest(unittest.TestCase):
         new_order = self.template_order.copy()
         new_order['zipcode'] = '99951'
         order = json.dumps(new_order)
-        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        result = self.applications.post('/sos/orders', content_type='application/json', data=order)
         json_result = json.loads(result.data)
         assert 400 == result.status_code and 'error' in json_result and 'invalid zipcode' == json_result['error']
 
@@ -139,7 +148,7 @@ class APITest(unittest.TestCase):
         new_order = self.template_order.copy()
         new_order['zipcode'] = '999999'
         order = json.dumps(new_order)
-        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        result = self.applications.post('/sos/orders', content_type='application/json', data=order)
         json_result = json.loads(result.data)
         assert 400 == result.status_code and 'error' in json_result and 'invalid zipcode' == json_result['error']
 
@@ -147,7 +156,7 @@ class APITest(unittest.TestCase):
         new_order = self.template_order.copy()
         new_order['zipcode'] = '00000-0000'
         order = json.dumps(new_order)
-        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        result = self.applications.post('/sos/orders', content_type='application/json', data=order)
         json_result = json.loads(result.data)
         assert 400 == result.status_code and 'error' in json_result and 'no support for zip+4' == json_result['error']
 
@@ -155,7 +164,7 @@ class APITest(unittest.TestCase):
         new_order = self.template_order.copy()
         new_order['zipcode'] = '000000000'
         order = json.dumps(new_order)
-        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        result = self.applications.post('/sos/orders', content_type='application/json', data=order)
         json_result = json.loads(result.data)
         assert 400 == result.status_code and 'error' in json_result and 'no support for zip+4' == json_result['error']
 
@@ -163,7 +172,7 @@ class APITest(unittest.TestCase):
         new_order = self.template_order.copy()
         new_order['zipcode'] = '09asd'
         order = json.dumps(new_order)
-        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        result = self.applications.post('/sos/orders', content_type='application/json', data=order)
         json_result = json.loads(result.data)
         assert 400 == result.status_code and 'error' in json_result and 'US zipcodes only contain digits' == json_result['error']
 

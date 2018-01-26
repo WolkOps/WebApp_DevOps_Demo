@@ -50,7 +50,6 @@ def get_hostname():
 @server.route('/{0}/orders/<order_id>'.format(server_name), methods=['GET'])
 def get_order(order_id):
     db_conn = sqlite3.connect(db_file)
-    print('in get_order')
     try:
         c = db_conn.cursor()
         t = (int(order_id),)
