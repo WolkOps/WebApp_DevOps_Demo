@@ -17,6 +17,7 @@ pipeline {
       DOCKER_IMAGE_NAME       = "demo-webapp"
       DOCKER_IMAGE_VERSION    = "latest"
       PYTHONPATH              ="${WORKSPACE}:${PYTHONPATH}"
+      SQLITE_DB_LOCATION      ="${WORKSPACE}/test-sqlite"
    }
 
    stages {
