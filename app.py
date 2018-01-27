@@ -16,7 +16,7 @@ debug = True
 
 # In-memory Databases - Dynamic Dictionaries
 orders = dict()
-products = ['Guitar','Piano', 'Saxophone', 'Flute', 'Base', 'Drums']
+products = ['Guitar','Piano', 'Saxophone', 'Flute', 'Base', 'Drums', 'Viola']
 bad_states = ['CA','TX','FL']
 
 # Local Storage DB
