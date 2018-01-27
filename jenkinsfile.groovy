@@ -55,6 +55,10 @@ pipeline {
          }         
       }
 
+      /*
+         How to build and push docker images to ECR:
+         https://blog.mikesir87.io/2016/04/pushing-to-ecr-using-jenkins-pipeline-plugin/
+      */
       stage('Build Docker Image') {
          steps {
             script{
