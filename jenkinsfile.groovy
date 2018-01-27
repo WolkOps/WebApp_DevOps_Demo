@@ -13,11 +13,11 @@ pipeline {
 
    environment {
       TEST_RESULT_LOCATION    = "**/*-nosetests.xml"
-      SSH_CONFIG_BASE         = "/var/lib/jenkins/.ssh/config.d/${env.BUILD_TAG}"
       DOCKER_IMAGE_NAME       = "demo-webapp"
       DOCKER_IMAGE_VERSION    = "${BUILD_NUMBER}"
       PYTHONPATH              ="${WORKSPACE}:${PYTHONPATH}"
       SQLITE_DB_LOCATION      ="${WORKSPACE}/test-sqlite"
+      SOS_SERVER_URL          = "http://a9e6ee97b031611e89b9102e3670d4d6-613919789.us-east-2.elb.amazonaws.com"
    }
 
    stages {
@@ -30,7 +30,8 @@ pipeline {
                $class: 'GitSCM', 
                userRemoteConfigs: [[
                      url: 'https://github.com/WolkOps/WebApp_DevOps_Demo.git', 
-                     name: 'origin'
+                     name: 'origin',
+                     refspec: ''
                ]],
                branches: [[name: "${params.ghprbActualCommit}"]],
                extensions: [
@@ -50,7 +51,7 @@ pipeline {
             pip install -q -r requirements.txt
 
             # Run unit tests
-            nosetests --nologcapture --nocapture --verbose --with-xunit --xunit-file="./unit-nosetests.xml" --where="./test";
+            nosetests --nologcapture --nocapture --verbose --with-xunit --xunit-file="./unit-nosetests.xml" --where="./tests";
             '''
          }         
       }
@@ -100,7 +101,14 @@ pipeline {
             #!/bin/bash
             set -e
 
+            # Activate the virtual environment
+            set +x; . "./venv/bin/activate"; set -x;
+
+            # Install robotframework requirements
+            pip install -q -r ./acceptance-tests/requirements.txt
+
             # Run robot framework
+            robot ./acceptance-tests/robot-test.robot 
             '''
          }
       }

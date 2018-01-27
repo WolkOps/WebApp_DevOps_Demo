@@ -117,6 +117,7 @@ def post_order():
         new_order['city'] = request.form['city']
         new_order['state'] = request.form['state']
         new_order['zipcode'] = request.form['zipcode']
+        print(str(request.form['dueDate']))
         new_order['dueDate'] = get_date(str(request.form['dueDate'])).strftime('%m/%d/%Y')
         new_order['productType'] = request.form['productType']
 
