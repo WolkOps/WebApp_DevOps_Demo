@@ -53,6 +53,9 @@ pipeline {
             # Run unit tests
             nosetests --nologcapture --nocapture --verbose --with-xunit --xunit-file="./unit-nosetests.xml" --where="./tests";
             '''
+
+            // Publish unit test results
+            junit "${env.TEST_RESULT_LOCATION}"
          }         
       }
 
@@ -110,6 +113,19 @@ pipeline {
             # Run robot framework
             robot ./acceptance-tests/robot-test.robot 
             '''
+
+            step([
+               $class : 'RobotPublisher',
+               outputPath : "${WORKSPACE}",
+               disableArchiveOutput : false,
+               passThreshold : 100,
+               unstableThreshold: 95.0,
+               reportFileName   : 'report*.html',
+               logFileName      : 'log*.html',
+               outputFileName   : 'output*.xml',
+               otherFiles : ""
+            ])
+
          }
       }
 
@@ -133,9 +149,6 @@ pipeline {
       always {
          // Print that pipeline is finished
          echo 'Pipeline done, recording results and cleaning up environment...'
-
-         // Test Results
-         junit "${env.TEST_RESULT_LOCATION}"
 
          // deactivate and destroy VENV
          sh '''
