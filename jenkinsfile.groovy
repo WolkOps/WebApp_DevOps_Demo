@@ -31,7 +31,7 @@ pipeline {
                userRemoteConfigs: [[
                      url: 'https://github.com/WolkOps/WebApp_DevOps_Demo.git', 
                      name: 'origin',
-                     refspec: ''
+                     refspec: '+refs/heads/master:refs/remotes/origin/master'
                ]],
                branches: [[name: "${params.ghprbActualCommit}"]],
                extensions: [
@@ -51,12 +51,24 @@ pipeline {
             pip install -q -r requirements.txt
 
             # Run unit tests
-            nosetests --nologcapture --nocapture --verbose --with-xunit --xunit-file="./unit-nosetests.xml" --where="./tests";
+            nosetests --with-coverage --cover-inclusive --cover-package=app --cover-erase --cover-xml --cover-xml-file="./coverage.xml" --nologcapture --nocapture --with-xunit --xunit-file="./unit-nosetests.xml" --where="./tests" --verbose;
             '''
 
             // Publish unit test results
             junit "${env.TEST_RESULT_LOCATION}"
          }         
+      }
+
+      stage('SonarQube analysis') {
+         steps {
+            script {
+               // requires SonarQube Scanner 2.8+
+               def scannerHome = tool 'Demo-Sonar-Scanner';
+               withSonarQubeEnv('SonarQube Demo') {
+                  sh "${scannerHome}/bin/sonar-scanner"
+               }
+            }
+         }
       }
 
       /*
@@ -120,9 +132,9 @@ pipeline {
                disableArchiveOutput : false,
                passThreshold : 100,
                unstableThreshold: 95.0,
-               reportFileName   : 'report*.html',
-               logFileName      : 'log*.html',
-               outputFileName   : 'output*.xml',
+               reportFileName   : 'report.html',
+               logFileName      : 'log.html',
+               outputFileName   : 'output.xml',
                otherFiles : ""
             ])
 
