@@ -49,8 +49,8 @@ pipeline {
             set -e
 
             # Create and activate virtual environment
-            virtualenv ${HOME}/venv
-            set +x; . "${HOME}/venv/bin/activate"; set -x;
+            virtualenv ${HOME}/venv-${BUILD_NUMBER}
+            set +x; . "${HOME}/venv-${BUILD_NUMBER}/bin/activate"; set -x;
 
             # Install requirements
             pip install -q -r requirements.txt
@@ -73,7 +73,7 @@ pipeline {
             }
 
             sh '''
-            rm -fr ${HOME}/venv/
+            rm -fr ${HOME}/venv-${BUILD_NUMBER}
             '''
          }         
       }
@@ -139,8 +139,8 @@ pipeline {
             set -e
 
             # Create and activate virtual environment
-            virtualenv ${HOME}/venv
-            set +x; . "${HOME}/venv/bin/activate"; set -x;
+            virtualenv ${HOME}/venv-${BUILD_NUMBER}
+            set +x; . "${HOME}/venv-${BUILD_NUMBER}/bin/activate"; set -x;
 
             # Install requirements
             pip install -q -r requirements.txt
@@ -190,7 +190,7 @@ pipeline {
 
          // deactivate and destroy VENV
          sh '''
-         rm -fr ${HOME}/venv/
+         rm -fr ${HOME}/venv-${BUILD_NUMBER}
          '''
       }
    }
