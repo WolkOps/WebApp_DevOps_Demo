@@ -12,11 +12,12 @@ pipeline {
    }
 
    environment {
+      JAVA_HOME               ="/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.151-1.b12.amzn2.x86_64"
       TEST_RESULT_LOCATION    = "**/*-nosetests.xml"
       DOCKER_IMAGE_NAME       = "demo-webapp"
       DOCKER_IMAGE_VERSION    = "${BUILD_NUMBER}"
       PYTHONPATH              ="${WORKSPACE}:${PYTHONPATH}"
-      SQLITE_DB_LOCATION      ="${WORKSPACE}/test-sqlite"
+      SQLITE_DB_LOCATION      ="./test-sqlite"
       SOS_SERVER_URL          = "http://a9e6ee97b031611e89b9102e3670d4d6-613919789.us-east-2.elb.amazonaws.com"
    }
 
@@ -48,13 +49,14 @@ pipeline {
             set -e
 
             # Create and activate virtual environment
-            virtualenv ./venv
-            set +x; . "./venv/bin/activate"; set -x;
+            virtualenv ${HOME}/venv
+            set +x; . "${HOME}/venv/bin/activate"; set -x;
 
             # Install requirements
             pip install -q -r requirements.txt
 
             # Run unit tests
+            export PYTHONPATH=./
             nosetests --with-coverage --cover-inclusive --cover-package=app --cover-erase --cover-xml --cover-xml-file="./coverage.xml" --nologcapture --nocapture --with-xunit --xunit-file="./unit-nosetests.xml" --where="./tests" --verbose;
             '''
 
@@ -69,6 +71,10 @@ pipeline {
                   sh "${scannerHome}/bin/sonar-scanner"
                }
             }
+
+            sh '''
+            rm -fr ${HOME}/venv/
+            '''
          }         
       }
 
@@ -133,8 +139,8 @@ pipeline {
             set -e
 
             # Create and activate virtual environment
-            virtualenv ./venv
-            set +x; . "./venv/bin/activate"; set -x;
+            virtualenv ${HOME}/venv
+            set +x; . "${HOME}/venv/bin/activate"; set -x;
 
             # Install requirements
             pip install -q -r requirements.txt
@@ -184,7 +190,7 @@ pipeline {
 
          // deactivate and destroy VENV
          sh '''
-         rm -fr ./venv/
+         rm -fr ${HOME}/venv/
          '''
       }
    }
