@@ -23,6 +23,10 @@ pipeline {
    stages {
 
       stage('Unit Test') { // for display purposes
+         agent {
+            label 'python-builder'
+         }
+
          steps {
 
             // Checkout code
@@ -56,11 +60,8 @@ pipeline {
 
             // Publish unit test results
             junit "${env.TEST_RESULT_LOCATION}"
-         }         
-      }
 
-      stage('SonarQube analysis') {
-         steps {
+            // Sonar Analysis
             script {
                // requires SonarQube Scanner 2.8+
                def scannerHome = tool 'Demo-Sonar-Scanner';
@@ -68,7 +69,7 @@ pipeline {
                   sh "${scannerHome}/bin/sonar-scanner"
                }
             }
-         }
+         }         
       }
 
       /*
@@ -77,6 +78,21 @@ pipeline {
       */
       stage('Build Docker Image') {
          steps {
+
+            // Checkout code
+            checkout([
+               $class: 'GitSCM', 
+               userRemoteConfigs: [[
+                     url: 'https://github.com/WolkOps/WebApp_DevOps_Demo.git', 
+                     name: 'origin',
+                     refspec: '+refs/heads/master:refs/remotes/origin/master'
+               ]],
+               branches: [[name: "${params.ghprbActualCommit}"]],
+               extensions: [
+                  [$class: 'WipeWorkspace'] // wipe workspace before clone
+               ]
+             ])
+
             script{
                docker.build('${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}')
                docker.build('${DOCKER_IMAGE_NAME}:latest')
@@ -116,8 +132,12 @@ pipeline {
             #!/bin/bash
             set -e
 
-            # Activate the virtual environment
+            # Create and activate virtual environment
+            virtualenv ./venv
             set +x; . "./venv/bin/activate"; set -x;
+
+            # Install requirements
+            pip install -q -r requirements.txt
 
             # Install robotframework requirements
             pip install -q -r ./acceptance-tests/requirements.txt
