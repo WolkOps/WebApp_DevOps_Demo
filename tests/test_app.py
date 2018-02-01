@@ -61,14 +61,6 @@ class APITest(unittest.TestCase):
         # Check Results
         assert 200 == result.status_code
 
-        # Testing productType: Guitar
-        new_order = self.template_order.copy()
-        new_order['productType'] = 'Guitar'
-        order = json.dumps(new_order)
-        result = self.applications.post('/sos/orders', content_type='application/json', data=order)
-        json_result = json.loads(result.data)
-        # Check Results
-        assert 200 == result.status_code
 
     def test_order_creation(self):
         # Create order
