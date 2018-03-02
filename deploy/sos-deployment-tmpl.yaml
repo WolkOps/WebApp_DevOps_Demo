@@ -39,7 +39,7 @@ objects:
       spec:
         containers:
         - name: sos
-          image: "956975823273.dkr.ecr.us-east-2.amazonaws.com/demo-webapp:$(VERSION)"
+          image: "174038932576.dkr.ecr.us-east-2.amazonaws.com/demo-webapp:$(VERSION)"
           imagePullPolicy: Always
           ports:
           - containerPort: 80
